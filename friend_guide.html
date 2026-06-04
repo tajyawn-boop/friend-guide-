@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우리 반 친구 알아가기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fff6ef; --bg-2: #ffe9d6; --card: #ffffff;
+    --ink: #3a2f28; --ink-soft: #7a6b5d; --ink-faint: #ab9c8c;
+    --line: #f3ddc4; --orange: #f0944a; --orange-deep: #d4762e;
+    --green: #5aa86b; --sky: #5591c4; --pink: #e07a9a; --sun: #f4c543;
+    --shadow: rgba(120, 80, 30, 0.16);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Gowun Dodum', sans-serif; background: var(--bg);
+    color: var(--ink); line-height: 1.8; -webkit-tap-highlight-color: transparent;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(circle at 12% 6%, rgba(240,148,74,0.10), transparent 40%),
+      radial-gradient(circle at 88% 8%, rgba(85,145,196,0.09), transparent 40%);
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 16px 90px; position: relative; z-index: 1; }
+  header { text-align: center; padding: 46px 14px 18px; }
+  .badge {
+    display: inline-block; font-family: 'Jua', sans-serif;
+    background: var(--orange); color: #fff; font-size: 0.92rem;
+    padding: 5px 18px; border-radius: 18px; margin-bottom: 12px;
+  }
+  h1 { font-family: 'Jua', sans-serif; font-size: 2.2rem; line-height: 1.35; }
+  .tagline { color: var(--ink-soft); font-size: 0.98rem; margin-top: 6px; }
+
+  /* 마음 열기 카드 */
+  .intro-cards { margin: 24px 0 10px; display: flex; flex-direction: column; gap: 10px; }
+  .intro-card {
+    background: var(--card); border: 2px solid var(--line);
+    border-radius: 14px; padding: 14px 16px;
+    display: flex; gap: 12px; align-items: center;
+    box-shadow: 0 3px 9px var(--shadow);
+  }
+  .intro-card .ic-emoji {
+    font-size: 1.7rem; flex-shrink: 0;
+    width: 46px; height: 46px; border-radius: 12px;
+    background: var(--bg-2); display: flex; align-items: center; justify-content: center;
+  }
+  .intro-card .ic-text { font-size: 0.96rem; }
+
+  .section-title {
+    font-family: 'Jua', sans-serif; font-size: 1.2rem;
+    margin: 30px 0 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .section-title .st-bar { width: 16px; height: 3px; border-radius: 3px; background: var(--orange); }
+
+  /* 궁금증 카드 (펼침) */
+  .q-card {
+    background: var(--card); border: 2px solid var(--line);
+    border-radius: 14px; margin-bottom: 10px; overflow: hidden;
+    box-shadow: 0 3px 9px var(--shadow);
+  }
+  .q-head {
+    padding: 15px 16px; cursor: pointer;
+    display: flex; align-items: center; gap: 11px;
+  }
+  .q-head .q-icon {
+    font-size: 1.4rem; flex-shrink: 0;
+    width: 42px; height: 42px; border-radius: 11px;
+    background: var(--bg-2); display: flex; align-items: center; justify-content: center;
+  }
+  .q-head .q-text { flex: 1; font-family: 'Jua', sans-serif; font-size: 1.04rem; }
+  .q-head .q-arrow {
+    font-size: 1rem; color: var(--ink-faint); transition: transform 0.2s;
+  }
+  .q-card.open .q-arrow { transform: rotate(180deg); }
+  .q-body {
+    display: none; padding: 0 16px 16px;
+  }
+  .q-card.open .q-body { display: block; animation: fade 0.3s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  .q-body ul { list-style: none; margin-bottom: 12px; }
+  .q-body li {
+    padding: 6px 0 6px 22px; position: relative; font-size: 0.95rem;
+  }
+  .q-body li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 7px; height: 7px; border-radius: 50%; background: var(--orange);
+  }
+  .q-tip {
+    background: var(--bg-2); border-radius: 10px; padding: 10px 14px;
+    font-size: 0.9rem; color: var(--orange-deep);
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .q-tip .tip-mark { flex-shrink: 0; }
+
+  /* 작은 행동 그리드 */
+  .action-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .action-item {
+    background: var(--card); border: 2px solid var(--line);
+    border-radius: 12px; padding: 13px 14px;
+    display: flex; gap: 10px; align-items: center;
+  }
+  .action-item .ai-emoji { font-size: 1.4rem; flex-shrink: 0; }
+  .action-item .ai-text { font-size: 0.9rem; }
+
+  /* 마무리 */
+  .closing-card {
+    margin-top: 24px;
+    background: linear-gradient(135deg, #fff3e4, #ffe7d0);
+    border: 2px solid var(--line); border-radius: 16px;
+    padding: 22px 20px; text-align: center;
+  }
+  .closing-card .cc-heart { font-size: 2rem; margin-bottom: 8px; }
+  .closing-card .cc-text { font-size: 0.97rem; color: var(--ink); }
+
+  /* 약속하기 버튼 */
+  .promise {
+    margin-top: 18px; text-align: center;
+  }
+  .promise-btn {
+    font-family: 'Jua', sans-serif; font-size: 1.05rem;
+    padding: 14px 30px; border: none; border-radius: 26px;
+    background: var(--orange); color: #fff; cursor: pointer;
+    box-shadow: 0 5px 14px var(--shadow); transition: all 0.15s;
+  }
+  .promise-btn:hover { transform: translateY(-3px); background: var(--orange-deep); }
+  .promise-done {
+    display: none; margin-top: 14px;
+    font-family: 'Jua', sans-serif; color: var(--green); font-size: 1.05rem;
+  }
+  .promise-done.show { display: block; animation: fade 0.4s ease; }
+
+  footer {
+    text-align: center; margin-top: 36px; padding-top: 20px;
+    border-top: 2px dashed var(--line); color: var(--ink-faint);
+    font-family: 'Jua', sans-serif; font-size: 0.85rem;
+  }
+  @media (max-width: 600px) {
+    h1 { font-size: 1.8rem; }
+    .action-grid { grid-template-columns: 1fr; }
+  }
+
+  /* 검색바 */
+  .search-box {
+    background: var(--card); border: 2px solid var(--line);
+    border-radius: 16px; padding: 16px; margin: 22px 0 4px;
+    box-shadow: 0 3px 9px var(--shadow);
+  }
+  .search-box .sb-title {
+    font-family: 'Jua', sans-serif; font-size: 1.05rem; color: var(--orange-deep);
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .sb-row { display: flex; gap: 8px; }
+  .sb-input {
+    flex: 1; font-family: 'Gowun Dodum', sans-serif; font-size: 0.98rem;
+    border: 2px solid var(--line); border-radius: 12px; padding: 12px 14px;
+    background: var(--bg); color: var(--ink);
+  }
+  .sb-input:focus { outline: none; border-color: var(--orange); }
+  .sb-btn {
+    font-family: 'Jua', sans-serif; font-size: 0.98rem; white-space: nowrap;
+    padding: 12px 20px; border: none; border-radius: 12px;
+    background: var(--orange); color: #fff; cursor: pointer; transition: background 0.15s;
+  }
+  .sb-btn:hover:not(:disabled) { background: var(--orange-deep); }
+  .sb-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .sb-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .sb-chip {
+    font-family: 'Gowun Dodum', sans-serif; font-size: 0.85rem;
+    padding: 6px 12px; border: 2px solid var(--line); border-radius: 14px;
+    background: var(--bg); color: var(--ink-soft); cursor: pointer;
+  }
+  .sb-chip:hover { border-color: var(--orange); color: var(--orange-deep); }
+  .sb-answer {
+    display: none; margin-top: 14px; padding: 14px 16px;
+    background: var(--bg-2); border-radius: 12px; font-size: 0.95rem; line-height: 1.85;
+    white-space: pre-wrap;
+  }
+  .sb-answer.show { display: block; animation: fade 0.3s ease; }
+  .sb-answer.err { background: #fdecea; color: #b4493a; }
+
+  /* 더 알아보기 버튼 + AI 답변 */
+  .more-btn {
+    margin-top: 12px; font-family: 'Jua', sans-serif; font-size: 0.92rem;
+    padding: 9px 16px; border: 1.5px dashed var(--orange); border-radius: 12px;
+    background: transparent; color: var(--orange-deep); cursor: pointer; transition: background 0.15s;
+  }
+  .more-btn:hover:not(:disabled) { background: rgba(240,148,74,0.08); }
+  .more-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .more-answer {
+    display: none; margin-top: 10px; padding: 12px 14px;
+    background: var(--bg-2); border-radius: 10px; font-size: 0.93rem; line-height: 1.8;
+    white-space: pre-wrap;
+  }
+  .more-answer.show { display: block; animation: fade 0.3s ease; }
+  .more-answer.err { background: #fdecea; color: #b4493a; }
+
+  /* 로딩 점 (문구 없음) */
+  .dots span {
+    display: inline-block; width: 8px; height: 8px; margin: 0 3px;
+    background: var(--orange); border-radius: 50%; opacity: 0.4;
+    animation: dotpulse 1.2s infinite ease-in-out both;
+  }
+  .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes dotpulse { 0%,80%,100% { transform: scale(0.7); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">🌷 함께 자라는 우리 반</div>
+    <h1>우리 반 친구 알아가기</h1>
+    <p class="tagline">장애가 있는 친구와 같은 조가 되었나요? 함께 친구가 되는 방법을 알아봐요</p>
+  </header>
+
+  <div class="intro-cards" id="intro-cards"></div>
+
+  <div class="search-box">
+    <div class="sb-title">🔎 더 궁금한 게 있나요?</div>
+    <div class="sb-row">
+      <input type="text" id="sb-input" class="sb-input"
+        placeholder="예) 친구가 갑자기 울면 어떡하죠?"
+        onkeydown="if(event.key==='Enter') askSearch()">
+      <button class="sb-btn" id="sb-btn" onclick="askSearch()">물어보기</button>
+    </div>
+    <div class="sb-chips">
+      <button class="sb-chip" onclick="askChip('친구가 내 말에 대답을 안 하면 어떡하죠?')">대답을 안 할 때</button>
+      <button class="sb-chip" onclick="askChip('같이 놀고 싶은데 어떻게 끼워줘야 할까요?')">같이 놀고 싶을 때</button>
+      <button class="sb-chip" onclick="askChip('친구가 화를 내면 어떻게 해요?')">화를 낼 때</button>
+    </div>
+    <div class="sb-answer" id="sb-answer"></div>
+  </div>
+
+  <div class="section-title"><span class="st-bar"></span>이런 게 궁금하지 않았어요?</div>
+  <div id="q-list"></div>
+
+  <div class="section-title"><span class="st-bar"></span>오늘 해볼 수 있는 작은 행동</div>
+  <div class="action-grid" id="action-grid"></div>
+
+  <div class="closing-card">
+    <div class="cc-heart">💛</div>
+    <div class="cc-text" id="closing-text"></div>
+  </div>
+
+  <div class="promise">
+    <button class="promise-btn" onclick="makePromise()">나도 좋은 친구가 될래요 🤝</button>
+    <div class="promise-done" id="promise-done">
+      고마워요! 그 마음이 우리 반을 따뜻하게 만들어요 🌟
+    </div>
+  </div>
+
+  <footer>우리 반 친구 알아가기 — 청소년부 수련회</footer>
+</div>
+
+<script>
+// ============================================
+// 데이터
+// ============================================
+const FRIEND = {
+  intro: [
+    { emoji: '🙂', text: '장애가 있는 친구도 나와 똑같이 웃고, 좋아하는 게 있고, 친구를 사귀고 싶어 해요.' },
+    { emoji: '🤝', text: '특별하게 대하지 않아도 돼요. 그냥 친구로 대하면 그게 가장 좋아요.' },
+    { emoji: '💬', text: '잘 모르겠으면 물어봐도 괜찮아요. 모르는 건 부끄러운 게 아니에요.' }
+  ],
+  questions: [
+    {
+      q: '어떻게 말을 걸어야 할까요?', icon: '👋',
+      a: [
+        '다른 친구한테 하듯이 똑같이 하면 돼요. "안녕, 너 이름이 뭐야?"처럼요.',
+        '천천히, 또렷하게 말하면 좋아요. 하지만 아기한테 하듯 너무 과장할 필요는 없어요.',
+        '눈을 보고 웃으면서 말하면, 그 마음이 잘 전해져요.'
+      ],
+      tip: '말을 거는 데 정답은 없어요. 먼저 다가가 준 것만으로 이미 좋은 친구예요.'
+    },
+    {
+      q: '도와주고 싶은데, 어떻게 해야 할까요?', icon: '🫶',
+      a: [
+        '먼저 "도와줄까?"라고 물어봐요. 친구가 "응" 하면 도와주고, "괜찮아" 하면 그 말을 존중해요.',
+        '묻지 않고 갑자기 휠체어를 밀거나 물건을 들면, 친구가 놀라거나 기분이 상할 수 있어요.',
+        '도움은 친구가 원할 때, 원하는 만큼만. 그게 진짜 도움이에요.'
+      ],
+      tip: '도와주는 것보다 더 중요한 건, 친구가 스스로 할 수 있는 걸 기다려 주는 거예요.'
+    },
+    {
+      q: '이런 걸 물어봐도 될까요?', icon: '❓',
+      a: [
+        '궁금하면 정중하게 물어봐요. "나는 잘 몰라서 그러는데, 알려줄 수 있어?"처럼요.',
+        '친구가 답하기 싫어하면 더 묻지 않아요. 누구나 말하고 싶지 않은 게 있을 수 있어요.',
+        '장애에 대해서만 묻지 말고, 좋아하는 노래·게임·음식도 물어봐요. 그게 진짜 친해지는 대화예요.'
+      ],
+      tip: '친구를 장애가 아니라 그 사람 자체로 궁금해하는 게 좋아요.'
+    },
+    {
+      q: '친구가 나와 다르게 행동하면요?', icon: '🌈',
+      a: [
+        '소리를 내거나, 같은 행동을 반복하거나, 가만히 있기 힘들어할 수 있어요. 그건 그 친구의 한 모습이에요.',
+        '놀리거나 흉내 내지 않아요. 그건 친구에게 큰 상처가 돼요.',
+        '이상하게 보지 말고, "아 저럴 수도 있구나" 하고 자연스럽게 받아들이면 돼요.'
+      ],
+      tip: '다 다르게 생긴 것처럼, 행동도 다를 수 있어요. 다른 건 틀린 게 아니에요.'
+    },
+    {
+      q: '실수하면 어떡하죠?', icon: '🍀',
+      a: [
+        '실수해도 괜찮아요. 몰라서 한 실수는 누구나 해요.',
+        '잘못 말했거나 행동했으면, "미안해"라고 하면 돼요. 친구는 대부분 이해해 줘요.',
+        '실수가 무서워서 아예 다가가지 않는 것보다, 실수하더라도 다가가는 게 훨씬 좋아요.'
+      ],
+      tip: '완벽한 친구가 되려 하지 않아도 돼요. 함께 있어 주는 친구면 충분해요.'
+    },
+    {
+      q: '다른 친구들이 그 친구를 따돌리면요?', icon: '🛡️',
+      a: [
+        '못 본 척하지 않아요. 내가 그 친구 옆에 있어 주는 것만으로 큰 힘이 돼요.',
+        '"그러지 마"라고 말하기 어려우면, 그 친구에게 다가가 같이 있어 주는 것도 좋은 방법이에요.',
+        '심하면 꼭 선생님께 알려요. 이르는 게 아니라, 친구를 지키는 거예요.'
+      ],
+      tip: '한 명이라도 곁에 있어 주면 그 친구는 혼자가 아니에요. 그 한 명이 내가 될 수 있어요.'
+    }
+  ],
+  actions: [
+    { emoji: '🪑', text: '밥 먹을 때나 모둠 활동 때 옆자리에 같이 앉아요.' },
+    { emoji: '🎮', text: '게임이나 활동을 할 때 "같이 하자"고 먼저 말해요.' },
+    { emoji: '👏', text: '그 친구가 무언가 해냈을 때 같이 기뻐하고 박수쳐요.' },
+    { emoji: '🗣️', text: '대화에 끼지 못하고 있으면 "너는 어때?"라고 물어봐 줘요.' },
+    { emoji: '😊', text: '눈이 마주치면 웃어 줘요. 작은 미소가 큰 환영이에요.' },
+    { emoji: '🤐', text: '그 친구의 비밀이나 어려운 점을 다른 데 가서 말하지 않아요.' }
+  ],
+  closing: '하나님은 우리 모두를 다르게, 그리고 귀하게 지으셨어요. 장애가 있는 친구도 우리 반의 소중한 한 사람이에요. 거창한 걸 하지 않아도 돼요 — 이름을 불러 주고, 옆에 앉아 주고, 함께 웃어 주는 것. 그것이 진짜 친구예요.'
+};
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ============================================
+// ▼▼▼ 여기에 작동하는 Gemini API 키를 넣으세요 (AQ. 또는 AIza 로 시작) ▼▼▼
+const GEMINI_API_KEY = "AQ.Ab8RN6LYiOCswhajjN5UCvJG_3qCka_hY5mjj8Sin8FvtBSCLQ";
+// ▲▲▲ 따옴표 안에만 붙여넣으세요. 데모 후 삭제하세요 ▲▲▲
+
+// 파일에 이미 있는 안내를 Gemini의 바탕 지식으로 사용
+function buildGuideContext() {
+  let lines = ['[마음 열기]'];
+  FRIEND.intro.forEach(c => lines.push('- ' + c.text));
+  lines.push('', '[자주 묻는 질문과 답]');
+  FRIEND.questions.forEach(q => {
+    lines.push('Q. ' + q.q);
+    q.a.forEach(a => lines.push('  - ' + a));
+    lines.push('  (팁: ' + q.tip + ')');
+  });
+  lines.push('', '[오늘 해볼 작은 행동]');
+  FRIEND.actions.forEach(a => lines.push('- ' + a.text));
+  lines.push('', '[마무리 마음]', FRIEND.closing);
+  return lines.join('\n');
+}
+
+const GUIDE_TONE =
+  '너는 한국 교회 청소년부에서, 장애가 있는 친구와 같은 반이 된 청소년에게 따뜻하게 조언해 주는 선생님이야.\n' +
+  '아래 [안내 자료]의 마음과 말투를 그대로 이어서 답해줘.\n' +
+  '규칙:\n' +
+  '- 청소년이 이해하기 쉬운, 따뜻하고 다정한 한국어 반말체로.\n' +
+  '- 장애가 있는 친구를 동정하거나 특별 취급하지 않고, 똑같은 친구로 대하는 관점으로.\n' +
+  '- 놀리거나 차별하지 않도록, 그리고 친구의 의사를 존중하도록 자연스럽게 이끌어줘.\n' +
+  '- 3~5문장으로 짧고 구체적으로. 목록이 필요하면 짧게.\n';
+
+// Gemini 호출 (실패 시 throw)
+async function callGemini(prompt) {
+  const key = GEMINI_API_KEY.trim();
+  if (!key || key === '여기에-API-키-붙여넣기') throw new Error('NO_KEY');
+  const res = await fetch(
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.8 }
+      })
+    }
+  );
+  if (!res.ok) {
+    const e = { status: res.status };
+    try { const j = await res.json(); e.detail = j.error && j.error.message; } catch (x) {}
+    throw e;
+  }
+  const data = await res.json();
+  return (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+}
+
+function friendlyError(err) {
+  if (err && err.message === 'NO_KEY') return '설정이 아직 완료되지 않았어요. 잠시 후 다시 시도해 주세요.';
+  if (err && err.status === 429) return '잠시 후 다시 시도해 주세요. (요청이 많아요)';
+  return '답을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+}
+
+const DOTS = '<span class="dots"><span></span><span></span><span></span></span>';
+
+// ============================================
+// 검색바
+// ============================================
+async function askChip(q) {
+  document.getElementById('sb-input').value = q;
+  askSearch();
+}
+
+async function askSearch() {
+  const input = document.getElementById('sb-input');
+  const ans = document.getElementById('sb-answer');
+  const btn = document.getElementById('sb-btn');
+  const question = input.value.trim();
+  if (!question) { ans.className = 'sb-answer show err'; ans.textContent = '궁금한 점을 적어줘.'; return; }
+
+  btn.disabled = true;
+  ans.className = 'sb-answer show';
+  ans.innerHTML = DOTS;
+
+  const prompt = GUIDE_TONE +
+    '\n[안내 자료]\n' + buildGuideContext() +
+    '\n\n[친구의 질문]\n' + question +
+    '\n\n위 안내 자료의 마음을 바탕으로, 이 질문에 따뜻하게 답해줘.';
+
+  try {
+    const text = await callGemini(prompt);
+    ans.className = 'sb-answer show';
+    ans.textContent = text || '답을 만들지 못했어요. 다시 시도해 줘.';
+  } catch (err) {
+    ans.className = 'sb-answer show err';
+    ans.textContent = friendlyError(err);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ============================================
+// 카드별 "더 알아보기"
+// ============================================
+async function askMore(i, btn) {
+  const q = FRIEND.questions[i];
+  const ansEl = document.getElementById('more-' + i);
+  btn.disabled = true;
+  ansEl.className = 'more-answer show';
+  ansEl.innerHTML = DOTS;
+
+  const prompt = GUIDE_TONE +
+    '\n[안내 자료]\n' + buildGuideContext() +
+    '\n\n[지금 보고 있는 질문]\n' + q.q +
+    '\n이미 적힌 답:\n' + q.a.map(a => '- ' + a).join('\n') +
+    '\n\n위에 이미 적힌 답과 겹치지 않게, 이 질문에 대해 새로운 예시나 구체적인 상황 한두 가지를 더 알려줘. 따뜻한 말투로 3~4문장.';
+
+  try {
+    const text = await callGemini(prompt);
+    ansEl.className = 'more-answer show';
+    ansEl.textContent = text || '내용을 더 불러오지 못했어요. 다시 시도해 줘.';
+  } catch (err) {
+    ansEl.className = 'more-answer show err';
+    ansEl.textContent = friendlyError(err);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ============================================
+// 렌더링
+// ============================================
+function renderIntro() {
+  document.getElementById('intro-cards').innerHTML = FRIEND.intro.map(c => `
+    <div class="intro-card">
+      <div class="ic-emoji">${c.emoji}</div>
+      <div class="ic-text">${esc(c.text)}</div>
+    </div>`).join('');
+}
+
+function renderQuestions() {
+  document.getElementById('q-list').innerHTML = FRIEND.questions.map((q, i) => `
+    <div class="q-card" id="qc-${i}">
+      <div class="q-head" onclick="toggleQ(${i})">
+        <div class="q-icon">${q.icon}</div>
+        <div class="q-text">${esc(q.q)}</div>
+        <div class="q-arrow">▾</div>
+      </div>
+      <div class="q-body">
+        <ul>${q.a.map(line => `<li>${esc(line)}</li>`).join('')}</ul>
+        <div class="q-tip"><span class="tip-mark">💡</span><span>${esc(q.tip)}</span></div>
+        <button class="more-btn" onclick="askMore(${i}, this)">✨ 더 알아보기</button>
+        <div class="more-answer" id="more-${i}"></div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleQ(i) {
+  document.getElementById('qc-' + i).classList.toggle('open');
+}
+
+function renderActions() {
+  document.getElementById('action-grid').innerHTML = FRIEND.actions.map(a => `
+    <div class="action-item">
+      <span class="ai-emoji">${a.emoji}</span>
+      <span class="ai-text">${esc(a.text)}</span>
+    </div>`).join('');
+}
+
+function makePromise() {
+  document.getElementById('promise-done').classList.add('show');
+}
+
+// ============================================
+// 초기화
+// ============================================
+renderIntro();
+renderQuestions();
+renderActions();
+document.getElementById('closing-text').textContent = FRIEND.closing;
+</script>
+</body>
+</html>
